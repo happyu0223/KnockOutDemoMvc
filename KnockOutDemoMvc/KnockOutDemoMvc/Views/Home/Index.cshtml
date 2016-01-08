@@ -3,10 +3,12 @@
     <input type="text" data-bind="value:numUsers,valueUpdate: 'afterkeydown'" />
     <input type="text" data-bind="value:realUsers" />
 </div>
+
 <div id ="model1">
     <h3>
         <a href="javascript:void(0)" data-bind="click:add">添加实体</a>
     </h3>
+    <span data-bind="text:PeopleList.length"></span>
     <table>
         <thead>
             <tr>
@@ -15,7 +17,20 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody data-bind="template:{name:'list',foreach: PeopleList}"></tbody>
+        @*<tbody data-bind="template:{name:'list',foreach: PeopleList}"></tbody>*@
+        <tbody data-bind="foreach: PeopleList">
+            <tr>
+                <td><span data-bind="text:ID"></span></td>
+                <td>
+                    <span data-bind="text:Name"></span>
+                </td>
+                <td>
+                    <a href="javascript:void(0)" data-bind="click:$parent.remove">删除</a>
+                    <a href="javascript:void(0)" data-bind="click:$parent.edit">编辑</a>
+                </td>
+            </tr>
+        </tbody>
+
     </table>
     <script type="text/html" id="list">
         <tr>
@@ -42,75 +57,84 @@
     <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
     <script src="~/Scripts/knockout.mapping-latest.debug.js"></script>
     <script>
-        var data = {
-            serverTime: ko.observable('2010-01-07'),
-            numUsers: ko.observable(3),
-            realUsers: ko.observable(3),
-        }
+    var data = {
+        serverTime: ko.observable('2010-01-07'),
+        numUsers: ko.observable(3),
+        realUsers: ko.observable(3),
+    }
 
-        //var data = {
-        //    serverTime: '2010-01-07',
-        //    numUsers: 3,
-        //    realUsers: 3,
-        //}
-        var People = function () {
-            this.ID = 0;
-            this.Name = "";
-        }
-        var model1 = function () {
-            self = this;
-            //方式一，通过ViewBag等容器实现的集合
-            self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
-            self.remove = function (o) { self.PeopleList.remove(o); };
-            self.selectItem = ko.observable();
-            self.editing = ko.observable(false);
+    //var data = {
+    //    serverTime: '2010-01-07',
+    //    numUsers: 3,
+    //    realUsers: 3,
+    //}
+    var People = function () {
+        this.ID = 0;
+        this.Name = "";
+    }
+    var model1 = function () {
 
-            self.add = function (o) {
-                self.editing(true);
-                self.selectItem(new People());
-            }
-
-            self.edit = function (o) {
-                self.editing(true);
-                self.selectItem(o);
-            }
-
-            self.selectItem.subscribe(function (o) {
-                //   alert("要编辑记录ID是" + o.ID);
-            });
-            self.save = function (o) {
-                alert((o.ID > 0 ? "修改数据" : "新建数据") + o.Name);
-            }
-            self.cancle = function () {
-                self.editing(false);
-            }
-        }
-
-        var model2 = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
-        model2.realUsers = ko.computed(function () {
-            return model2.numUsers() ? model2.numUsers() * 2 : 0;
-        });
-
-        ko.applyBindings(model2, document.getElementById("model2"));
-
-      //  var model1 = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
-        ko.applyBindings(model1, document.getElementById("model1"));
-
-      
-
-        //方式二，通过getJSON等方式实现异步获取
-        //js接收C#数据集合的方式
-        //$.getJSON("http://localhost:2166/api/values/", function (data) {
-        //    var Cart = function () {
-        //        // Stores an array of lines, and from these, can work out the grandTotal
-        //        var self = this;
-        //        //self.lines = ko.observableArray([new CartLine()]);
-        //        self.lines = ko.observableArray(data);
-        //        // Operations
-        //        self.addLine = function () { self.lines.push(new CartLine()) };
-        //        self.removeLine = function (line) { self.lines.remove(line) };
-        //    }
-        //    ko.applyBindings(new Cart());
+        //方式一，通过ViewBag等容器实现的集合
+        //console.log(@Html.Raw(Json.Encode(Model)));
+        //$.getJSON("GetPepopleList", function (result) {
+        //    console.log(result.data);
+        //    // self.item=new GMK.Contract.Details.ContractWithCommodityViewModel(data, commonModels, route, options);
         //});
 
-    </script>
+        self = this;
+        self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
+        self.remove = function (o) { self.PeopleList.remove(o); };
+        self.selectItem = ko.observable();
+        self.editing = ko.observable(false);
+
+        self.add = function (o) {
+            self.editing(true);
+            self.selectItem(new People());
+        }
+
+        self.edit = function (o) {
+            self.editing(true);
+            self.selectItem(o);
+        }
+
+        self.selectItem.subscribe(function (o) {
+            //   alert("要编辑记录ID是" + o.ID);
+        });
+        self.save = function (o) {
+            alert((o.ID > 0 ? "修改数据" : "新建数据") + o.Name);
+        }
+        self.cancle = function () {
+            self.editing(false);
+        }
+        //self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
+
+    }
+
+    var model2 = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
+    model2.realUsers = ko.computed(function () {
+        return model2.numUsers() ? model2.numUsers() * 2 : 0;
+    });
+
+    ko.applyBindings(model2, document.getElementById("model2"));
+
+    //  var model1 = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
+    ko.applyBindings(model1, document.getElementById("model1"));
+
+
+
+    //方式二，通过getJSON等方式实现异步获取
+    //js接收C#数据集合的方式
+    //$.getJSON("http://localhost:2166/api/values/", function (data) {
+    //    var Cart = function () {
+    //        // Stores an array of lines, and from these, can work out the grandTotal
+    //        var self = this;
+    //        //self.lines = ko.observableArray([new CartLine()]);
+    //        self.lines = ko.observableArray(data);
+    //        // Operations
+    //        self.addLine = function () { self.lines.push(new CartLine()) };
+    //        self.removeLine = function (line) { self.lines.remove(line) };
+    //    }
+    //    ko.applyBindings(new Cart());
+    //});
+
+</script>
