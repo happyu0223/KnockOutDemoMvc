@@ -4,11 +4,12 @@
     <input type="text" data-bind="value:realUsers" />
 </div>
 
-<div id ="model1">
+<div id="model1">
     <h3>
         <a href="javascript:void(0)" data-bind="click:add">添加实体</a>
+        <button type="button" data-bind="click:sortItem">排序</button>
+        <button type="button" data-bind="click:reverseItem">反序</button>
     </h3>
-    <span data-bind="text:PeopleList.length"></span>
     <table>
         <thead>
             <tr>
@@ -17,20 +18,19 @@
                 <th></th>
             </tr>
         </thead>
-        @*<tbody data-bind="template:{name:'list',foreach: PeopleList}"></tbody>*@
-        <tbody data-bind="foreach: PeopleList">
-            <tr>
-                <td><span data-bind="text:ID"></span></td>
-                <td>
-                    <span data-bind="text:Name"></span>
-                </td>
-                <td>
-                    <a href="javascript:void(0)" data-bind="click:$parent.remove">删除</a>
-                    <a href="javascript:void(0)" data-bind="click:$parent.edit">编辑</a>
-                </td>
-            </tr>
-        </tbody>
-
+        <tbody data-bind="template:{name:'list',foreach: PeopleList}"></tbody>
+        @*<tbody data-bind="foreach: PeopleList">
+                <tr>
+                    <td><span data-bind="text:ID"></span></td>
+                    <td>
+                        <span data-bind="text:Name"></span>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0)" data-bind="click:$parent.remove">删除</a>
+                        <a href="javascript:void(0)" data-bind="click:$parent.edit">编辑</a>
+                    </td>
+                </tr>
+            </tbody>*@
     </table>
     <script type="text/html" id="list">
         <tr>
@@ -53,10 +53,10 @@
     </fieldset>
 </div>
 
-    <script src="~/Scripts/jquery-2.1.4.min.js"></script>
-    <script src="~/Scripts/knockout-3.4.0.debug.js"></script>
-    <script src="~/Scripts/knockout.mapping-latest.debug.js"></script>
-    <script>
+<script src="~/Scripts/jquery-2.1.4.min.js"></script>
+<script src="~/Scripts/knockout-3.4.0.debug.js"></script>
+<script src="~/Scripts/knockout.mapping-latest.debug.js"></script>
+<script>
     var data = {
         serverTime: ko.observable('2010-01-07'),
         numUsers: ko.observable(3),
@@ -69,21 +69,19 @@
     //    realUsers: 3,
     //}
     var People = function () {
-        this.ID = 0;
-        this.Name = "";
+        this.ID = ko.observable(0);
+        this.Name = ko.observable("");
     }
-    var model1 = function () {
 
+    var model1 = function () {
+        self = this;
+        self.PeopleList = ko.observableArray();
         //方式一，通过ViewBag等容器实现的集合
         //console.log(@Html.Raw(Json.Encode(Model)));
-        //$.getJSON("GetPepopleList", function (result) {
-        //    console.log(result.data);
-        //    // self.item=new GMK.Contract.Details.ContractWithCommodityViewModel(data, commonModels, route, options);
-        //});
-
-        self = this;
-        self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
-        self.remove = function (o) { self.PeopleList.remove(o); };
+        //self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
+        self.remove = function (o) {
+            self.PeopleList.remove(o);
+        };
         self.selectItem = ko.observable();
         self.editing = ko.observable(false);
 
@@ -98,28 +96,121 @@
         }
 
         self.selectItem.subscribe(function (o) {
-            //   alert("要编辑记录ID是" + o.ID);
+            alert("要编辑记录ID是" + o.ID);
         });
         self.save = function (o) {
+            self.PeopleList.push(o);
             alert((o.ID > 0 ? "修改数据" : "新建数据") + o.Name);
         }
         self.cancle = function () {
             self.editing(false);
         }
-        //self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
-
+        self.sortItem = function () {
+            //顺序排列
+            self.PeopleList.sort(
+                function (left, right) {
+                    return left.ID == right.ID ? 0 : (left.ID < right.ID ? -1 : 1);
+                });
+        };
+        self.reverseItem = function () {
+            self.PeopleList.reverse();
+        };
     }
+
 
     var model2 = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
     model2.realUsers = ko.computed(function () {
         return model2.numUsers() ? model2.numUsers() * 2 : 0;
     });
-
     ko.applyBindings(model2, document.getElementById("model2"));
 
     //  var model1 = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
-    ko.applyBindings(model1, document.getElementById("model1"));
+    //ko.applyBindings(new model1(), document.getElementById("model1"));
 
+    $.getJSON("GetPepopleList", function (models) {
+        //console.log(result.data);
+        var data = models.data;
+        //console.log(@Html.Raw(Json.Encode(Model)));
+        // model1.PeopleList = ko.mapping.fromJS(data);//data对象里所有属性添加ko属性
+        //self.changeRequest = ko.mapping.fromJS(data); //data里面的所有数据都会变成observable
+       // 如果要更新整个对象，通过直接的赋值self.changeRequest没有作用，可以通过以下方法：
+        //ko.mapping.fromJS(result,instance.changeRequestViewModel.changeRequest
+        var model3 = function () {
+            self = this;
+           // var self = $.extend(this, models);
+            // self = $.extend(this, ko.mapping.fromJS(models));
+            console.log(self);
+
+           self.PeopleList = ko.observableArray(@Html.Raw(Json.Encode(Model)));
+            //self.PeopleList = ko.observableArray();
+            self.remove = function (o) {
+                self.PeopleList.remove(o);
+                //self.editing(false);
+            };
+            self.selectItem = ko.observable();
+            //self.listLength = ko.observable();
+            self.editing = ko.observable(false);
+
+            self.add = function (o) {
+                self.editing(true);
+                self.selectItem(new People());
+            }
+            self.edit = function (o) {
+                self.editing(true);
+                self.selectItem(o);
+            }
+            self.selectItem.subscribe(function (o) {
+                o.ID() > 0 ? alert("要编辑记录ID是" + o.ID()) : alert("要创建新记录");
+            });
+            self.save = function (o) {
+                if (self.editing()&&o.ID()>0) {
+                    var old = self.selectItem();
+                    console.log(old);
+                    self.PeopleList.remove(old);
+                    self.PeopleList.push(o);
+                }
+                else
+                {
+                    console.log(self.listLength());
+                    o.ID(self.listLength() + 1);
+                    self.PeopleList.push(o);
+                }
+                self.editing(false);
+                self.sortItem();
+                alert((o.ID > 0 ? "修改数据" : "新建数据") + o.Name());
+            }
+            self.cancle = function () {
+                self.editing(false);
+            }
+            self.sortItem = function () {
+                //顺序排列
+                self.PeopleList.sort(
+                    function (left, right) {
+                        return left.ID == right.ID ? 0 : (left.ID < right.ID ? -1 : 1);
+                    });
+            }
+            self.reverseItem = function () {
+                self.PeopleList.reverse();
+            }
+            //计算数组长度
+            self.listLength = ko.computed({
+                read: function () {
+                    return self.PeopleList().length;
+                },
+                write: function (value) {
+                 //
+                },
+                owner: this
+            });
+
+            //    ko.computed(function () {
+            //    return self.PeopleList().length;
+            //}).extend({ throttle: 10 });
+        }
+        ko.applyBindings(new model3(), document.getElementById("model1"));
+        // self.item=new GMK.Contract.Details.ContractWithCommodityViewModel(data, commonModels, route, options);
+       // var self = $.extend(this, ko.mapping.fromJS(plainItem));
+    });
 
 
     //方式二，通过getJSON等方式实现异步获取
