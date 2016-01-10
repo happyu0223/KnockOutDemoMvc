@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using AutoMapper;
+using AutoMapper.Internal;
+using AutoMapper.Mappers;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
@@ -11,11 +14,34 @@ using System.Web.Mvc;
 
 namespace KnockOutDemoMvc
 {
+    //提供所有接口对象
+    public class ManagersProvider
+    {
+        //private IOtherBillManager _OtherBillManager;
+        //public IOtherBillManager OtherBillManager
+        //{
+        //    get
+        //    {
+        //        if (_OtherBillManager == null) _OtherBillManager = new BusinessLayer.OtherBillManager(UserInfo);
+        //        return _OtherBillManager;
+        //    }
+        //}
+        public ManagersProvider()
+        {
+        }
+    }
     public class BaseController : Controller
         {
 
             public BaseController() : base()
             {
+                AnonymousManagersProvider = new ManagersProvider();
+
+                IPlatformSpecificMapperRegistry platformSpecificRegistry = PlatformAdapter.Resolve<IPlatformSpecificMapperRegistry>(true);
+                platformSpecificRegistry.Initialize();
+                var store = new ConfigurationStore(new TypeMapFactory(), MapperRegistry.Mappers);
+                _mapper = new MappingEngine(store);
+
             }
 
             protected override void OnActionExecuting(ActionExecutingContext filterContext)
@@ -43,7 +69,14 @@ namespace KnockOutDemoMvc
             {
                 return new JsonNetResult { Data = data, JsonRequestBehavior = behavior, IsCamelCase = true };
             }
-        }
+            protected IMappingEngine Mapper { get { return _mapper; } }
+            private IMappingEngine _mapper;
+
+            protected IConfiguration MapperConfiguration { get { return (IConfiguration)_mapper.ConfigurationProvider; } }
+            public ManagersProvider AnonymousManagersProvider { get; private set; }
+
+    }
+
 
     public class JsonNetResult : JsonResult
     {
