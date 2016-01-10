@@ -17,7 +17,7 @@ namespace KnockOutDemoMvc.Controllers
         // GET: /Home/
         public ActionResult GetPepopleList()
         {
-            var data = new List<Pepople>
+            var result = new List<Pepople>
             {
                 new Pepople{ID=1,Name="test1"},
                 new Pepople{ID=2,Name="test2"},
@@ -32,7 +32,7 @@ namespace KnockOutDemoMvc.Controllers
             //var data = ManagersProvider.LongContractManager.List(paramter, pagination);
             //var result = new AjaxReturnInfo { Data = new { pagination = pagination, result = data, } };
             //return Json(result, JsonRequestBehavior.AllowGet);
-            return JavaScriptJson(new AjaxReturnInfo { Status = true, Data = data }, JsonRequestBehavior.AllowGet);
+            return Json(new AjaxReturnInfo { Data = result }, JsonRequestBehavior.AllowGet);
         }
 
         public List<Pepople> GetList()
@@ -63,6 +63,11 @@ namespace KnockOutDemoMvc.Controllers
         }
 
         public ActionResult MultiSelectList()
+        {
+            return View();
+        }
+
+        public ActionResult Detail()
         {
             return View();
         }

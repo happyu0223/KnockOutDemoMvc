@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Report";
+}
+<h1 class="pageTitle">Report</h1>
+<hr />
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>合同编号</th>
+            <th>开始日期</th>
+            <th>结束日期</th>
+            <th>数据行数</th>
+            <th>数据错误</th>
+            <th>错误信息</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: items">
+        <tr data-bind="style: { color: IsDataWrong() ? 'red' : 'initial' }">
+            <td>
+                <a data-bind="text: ContractCode, attr: { href: '@(Url.Action("Index", "Accounting"))?' + $.param({ contractCode: ContractCode() }) }" href="#"></a>
+            </td>
+            <td data-bind="text: utils.dateFormatter(StartTime())"></td>
+            <td data-bind="text: utils.dateFormatter(EndTime())"></td>
+            <td data-bind="text: DataCount"></td>
+            <td data-bind="text: IsDataWrong() ? '是' : '否'"></td>
+            <td data-bind="text: Message"></td>
+        </tr>
+    </tbody>
+</table>
+
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/app/FeatureBase.js?_=@GMK.OperationSystem.Web.Models.Constrants.Version"></script>
+    <script src="~/Scripts/app/accounting/accounting.js?_=@GMK.OperationSystem.Web.Models.Constrants.Version"></script>
+    <script type="text/javascript">
+        $(function () {
+            GMK.Accounting.start({ action: 'Report' });
+        });
+    </script>
+}
