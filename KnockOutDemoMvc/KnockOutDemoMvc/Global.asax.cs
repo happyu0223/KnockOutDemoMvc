@@ -20,8 +20,8 @@ namespace KnockOutDemoMvc
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BootstrapBundleConfig.RegisterBundles();
-            BundleTable.EnableOptimizations = true;
+            //BootstrapBundleConfig.RegisterBundles();
+            //BundleTable.EnableOptimizations = true;
 
         }
     }

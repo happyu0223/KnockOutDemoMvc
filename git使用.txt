@@ -205,3 +205,52 @@ Git基本常用命令如下：
    git remote –v 查看远程库的详细信息
 
    git push origin master  Git会把master分支推送到远程库对应的远程分支上
+
+第一步：建立git仓库 
+cd到你的本地项目根目录下，执行git命令
+
+git init
+1
+第二步：将项目的所有文件添加到仓库中
+
+git add .
+1
+如果想添加某个特定的文件，只需把.换成特定的文件名即可
+
+第三步：将add的文件commit到仓库
+
+git commit -m "注释语句"
+1
+第四步：去github上创建自己的Repository，创建页面如下图所示： 
+这里写图片描述
+
+点击下面的Create repository，就会进入到类似下面的一个页面，拿到创建的仓库的https地址，红框标示的就是
+这里写图片描述
+
+第五步：重点来了，将本地的仓库关联到github上
+
+git remote add origin https://github.com/hanhailong/CustomRatingBar
+1
+后面的https链接地址换成你自己的仓库url地址，也就是上面红框中标出来的地址
+
+第六步：上传github之前，要先pull一下，执行如下命令：
+
+git pull origin master
+1
+敲回车后，会执行输出类似如下 
+这里写图片描述
+
+第七步，也就是最后一步，上传代码到github远程仓库
+
+git push -u origin master
+1
+执行完后，如果没有异常，等待执行完就上传成功了，中间可能会让你输入Username和Password，你只要输入github的账号和密码就行了
+
+最后附上代码上传成功后的截图： https://github.com/happyu0223/CodeFirstDemo.git
+如果不再需要某个远程分支了，比如搞定了某个特性并把它合并进了远程的 master 分支（或任何其他存放 
+稳定代码的地方），可以用这个非常无厘头的语法来删除它：git push  [远程名] :[分支名]。如果想在服务器上删 
+除 serverfix 分支，运行下面的命令：
+
+git push origin :serverfix
+To git@github.com:schacon/simplegit.git
+- [deleted] serverfix
